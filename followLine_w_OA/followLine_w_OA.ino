@@ -154,11 +154,47 @@ void turn(int leftSpeed, int rightSpeed) {
 }
 
 void avoidObject(){
+  //lump in if we just detect the center so we pick a direction of travel
+  bool detectedLeft = detectObject(detectObject(digitalRead(leftIR)) || detectObject(digitalRead(centerIR))); 
+  if(detectedLeft) {
+    avoidRight();
+  } else {
+    avoidLeft();
+  }
+}
+
+//Steers the robot left
+void avoidLeft() {
   int loops = 0;
-  bool detectedObject = detectObject(digitalRead(centerIR)) || detectObject(digitalRead(leftIR)) ||detectObject(digitalRead(rightIR));  
+  bool detectedObject = detectObject(digitalRead(rightIR));  
+  while (detectedObject){
+    stepLeft();
+    detectedObject = detectObject(digitalRead(rightIR));  
+    loops += 3;
+  }
+  stepLeft();
+  delay(1000);
+  moveStraight();
+  delay(2000);
+  while (loops > 0){
+    stepLRight();
+    loops -= 1;
+  }
+  stepRight();
+  delay(1000);
+  moveStraight();
+  delay(2000);
+  stopMove();
+  delay(10000);
+}
+
+//Steers the robot right
+void avoidRight() {
+  int loops = 0;
+  bool detectedObject = detectObject(digitalRead(leftIR));  
   while (detectedObject){
     stepRight();
-    detectedObject = detectObject(digitalRead(centerIR)) || detectObject(digitalRead(leftIR)) ||detectObject(digitalRead(rightIR));  
+    detectedObject = ddetectObject(digitalRead(leftIR)); 
     loops += 3;
   }
   stepRight();
